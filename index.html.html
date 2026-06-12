@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>高中生專注力網頁引導系統</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            text-align: center;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #313244;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.3);
+        }
+        #timer {
+            font-size: 80px;
+            font-weight: bold;
+            color: #f38ba8;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #89b4fa;
+            color: #11111b;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #b4befe; }
+        .distract-btn { background-color: #f9e2af; }
+        .distract-btn:hover { background-color: #fab387; }
+        .report {
+            margin-top: 30px;
+            text-align: left;
+            background-color: #181825;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h2 { color: #a6e3a1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎯 高二生專注力高效引導網頁</h1>
+    <p>建立規律讀書節奏，揪出讓你分心的罪魁禍首</p>
+    
+    <div id="timer">25:00</div>
+    <button onclick="startTimer()">開始專注</button>
+    <button onclick="resetTimer()" style="background-color: #6c7086; color: white;">重設</button>
+    
+    <hr style="border: 1px solid #45475a; margin: 30px 0;">
+    
+    <h3>⚠️ 糟糕，我剛剛分心了...（點擊記錄原因）</h3>
+    <button class="distract-btn" onclick="addDistract('phone')">📱 滑手機</button>
+    <button class="distract-btn" onclick="addDistract('friend')">💬 同學找聊天</button>
+    <button class="distract-btn" onclick="addDistract('sleep')">😴 睏倦發呆</button>
+    <button class="distract-btn" onclick="addDistract('other')">❓ 其他雜事</button>
+    
+    <div class="report">
+        <h2>📊 本次專注力干擾數據分析</h2>
+        <p>1. 手機訊息干擾：<span id="p-count">0</span> 次</p>
+        <p>2. 同學聊天打擾：<span id="f-count">0</span> 次</p>
+        <p>3. 睏倦發呆恍神：<span id="s-count">0</span> 次</p>
+        <p>4. 其他雜事分心：<span id="o-count">0</span> 次</p>
+        <p><strong>總分心次數：<span id="total-count">0</span> 次</strong></p>
+        <p id="feedback" style="color: #fab387; font-weight: bold; border-top: 1px dashed #45475a; padding-top: 10px;">【系統評語】尚未開始專注，加油！</p>
+    </div>
+</div>
+
+<script>
+    // 初始化變數
+    let timeLeft = 1500; // 25分鐘 = 1500秒
+    let timerInterval = null;
+    let counts = { phone: 0, friend: 0, sleep: 0, other: 0 };
+
+    // 更新時鐘畫面
+    function updateDisplay() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("timer").innerText = 
+            (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    }
+
+    // 開始計時
+    function startTimer() {
+        if (timerInterval !== null) return; // 避免重複啟動
+        
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+            } else {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                alert("⏰ 嗶嗶嗶！時間到！恭喜完成一次專注循環！");
+                generateFeedback();
+            }
+        }, 1000);
+    }
+
+    // 重設計時
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = 1500;
+        updateDisplay();
+    }
+
+    // 紀錄分心原因
+    function addDistract(type) {
+        counts[type]++;
+        document.getElementById(type[0] + "-count").innerText = counts[type];
+        
+        let total = counts.phone + counts.friend + counts.sleep + counts.other;
+        document.getElementById("total-count").innerText = total;
+        generateFeedback();
+    }
+
+    // 產生診斷評語
+    function generateFeedback() {
+        let total = counts.phone + counts.friend + counts.sleep + counts.other;
+        let msg = "";
+        
+        if (total === 0) {
+            msg = "【系統評語】戰神級專注！請繼續保持，台清交政在前方等你了！";
+        } else if (counts.phone >= counts.friend && counts.phone >= counts.sleep) {
+            msg = "【系統評語】診斷報告：你極度容易被手機綁架。建議下次讀書將手機關機並放進書包！";
+        } else if (counts.sleep > counts.phone) {
+            msg = "【系統評語】診斷報告：你太累了。強烈建議中午午休睡滿20分鐘，或調整作息。";
+        } else {
+            msg = "【系統評語】診斷報告：讀書環境有些嘈雜，下次不妨試試戴上耳塞或去圖書館。";
+        }
+        document.getElementById("feedback").innerText = msg;
+    }
+</script>
+</body>
+</html>
